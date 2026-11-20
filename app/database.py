@@ -22,112 +22,112 @@ def init_db() -> None:
         cursor = conn.cursor()
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Categoria (
+            CREATE TABLE IF NOT EXISTS Category (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                descripcion TEXT NOT NULL
+                name TEXT NOT NULL,
+                description TEXT NOT NULL
             )
         """)
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Proveedor (
+            CREATE TABLE IF NOT EXISTS Supplier (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                direccion TEXT NOT NULL,
-                telefono TEXT NOT NULL,
+                name TEXT NOT NULL,
+                address TEXT NOT NULL,
+                phone TEXT NOT NULL,
                 email TEXT NOT NULL
             )
         """)
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS articulos (
+            CREATE TABLE IF NOT EXISTS articles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                descripcion TEXT NOT NULL,
-                precio_unitario REAL NOT NULL,
-                Stock INTEGER NOT NULL,
-                precio_venta REAL NOT NULL,
-                id_Categoria INTEGER,
-                id_Proveedor INTEGER,
-                FOREIGN KEY (id_Categoria) REFERENCES Categoria(id) ON DELETE CASCADE,
-                FOREIGN KEY (id_Proveedor) REFERENCES Proveedor(id) ON DELETE CASCADE
+                name TEXT NOT NULL,
+                description TEXT NOT NULL,
+                unit_price REAL NOT NULL,
+                stock INTEGER NOT NULL,
+                sale_price REAL NOT NULL,
+                id_Category INTEGER,
+                id_Supplier INTEGER,
+                FOREIGN KEY (id_Category) REFERENCES Category(id) ON DELETE CASCADE,
+                FOREIGN KEY (id_Supplier) REFERENCES Supplier(id) ON DELETE CASCADE
             )
         """)
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS clientes (
+            CREATE TABLE IF NOT EXISTS customers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                direccion TEXT NOT NULL,
-                telefono TEXT NOT NULL,
+                name TEXT NOT NULL,
+                address TEXT NOT NULL,
+                phone TEXT NOT NULL,
                 email TEXT NOT NULL,
-                fecha_registro TEXT NOT NULL
+                registration_date TEXT NOT NULL
             )
         """)
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sucursal (
+            CREATE TABLE IF NOT EXISTS branch (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre_sucursal TEXT NOT NULL,
-                direccion TEXT NOT NULL,
-                telefono TEXT NOT NULL
+                name TEXT NOT NULL,
+                address TEXT NOT NULL,
+                phone TEXT NOT NULL
             )
         """)
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS deposito (
+            CREATE TABLE IF NOT EXISTS deposit (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                direccion TEXT NOT NULL
+                name TEXT NOT NULL,
+                address TEXT NOT NULL
             )
         """)
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS stock_deposito (
+            CREATE TABLE IF NOT EXISTS warehouse_stock (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_articulo INTEGER NOT NULL,
-                id_deposito INTEGER NOT NULL,
-                cantidad INTEGER NOT NULL,
-                FOREIGN KEY (id_articulo) REFERENCES articulos(id) ON DELETE CASCADE,
-                FOREIGN KEY (id_deposito) REFERENCES deposito(id) ON DELETE CASCADE
+                id_articles INTEGER NOT NULL,
+                id_deposit INTEGER NOT NULL,
+                amount INTEGER NOT NULL,
+                FOREIGN KEY (id_articles) REFERENCES articles(id) ON DELETE CASCADE,
+                FOREIGN KEY (id_deposit) REFERENCES deposit(id) ON DELETE CASCADE
             )
         """)
 
         cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS movimientos_stock (
+                    CREATE TABLE IF NOT EXISTS stock_movements (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        fecha_movimiento TEXT NOT NULL,
-                        cantidad_movida INTEGER NOT NULL,
-                        tipo_movimiento TEXT NOT NULL,
-                        id_articulo INTEGER NOT NULL,
-                        id_deposito INTEGER NOT NULL,
-                        FOREIGN KEY (id_articulo) REFERENCES articulos(id_articulo) ON DELETE CASCADE,
-                         FOREIGN KEY (id_deposito) REFERENCES deposito(id_Deposito) ON DELETE CASCADE
+                        transaction_date TEXT NOT NULL,
+                        amount_moved INTEGER NOT NULL,
+                        movement_type TEXT NOT NULL,
+                        id_articles INTEGER NOT NULL,
+                        id_deposit INTEGER NOT NULL,
+                        FOREIGN KEY (id_articles) REFERENCES articles(id) ON DELETE CASCADE,
+                         FOREIGN KEY (id_deposit) REFERENCES deposit(id) ON DELETE CASCADE
                     )
                 """)
 
 
         cursor.execute("""
-                            CREATE TABLE IF NOT EXISTS facturas (
+                            CREATE TABLE IF NOT EXISTS invoices (
                                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                fecha TEXT NOT NULL,
+                                date TEXT NOT NULL,
                                 total INTEGER NOT NULL,
-                                id_clientes INTEGER NOT NULL,
-                                id_sucursal INTEGER NOT NULL,
-                                FOREIGN KEY (id_clientes) REFERENCES Clientes(id_clientes) ON DELETE CASCADE,
-                                FOREIGN KEY (id_sucursal) REFERENCES sucursal(id_sucursal) ON DELETE CASCADE
+                                id_customer INTEGER NOT NULL,
+                                id_branch INTEGER NOT NULL,
+                                FOREIGN KEY (id_customer) REFERENCES customers(id) ON DELETE CASCADE,
+                                FOREIGN KEY (id_branch) REFERENCES branch(id_branch) ON DELETE CASCADE
                             )
                         """)
 
         cursor.execute("""
-                                    CREATE TABLE IF NOT EXISTS detalle_factura (
+                                    CREATE TABLE IF NOT EXISTS invoice_detail (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        cantidad INTEGER NOT NULL,
-                                        precio_unitario REAL NOT NULL,
-                                        id_factura INTEGER NOT NULL,
-                                        id_articulo INTEGER NOT NULL,
-                                        FOREIGN KEY (id_factura) REFERENCES facturas(id) ON DELETE CASCADE,
-                                        FOREIGN KEY (id_articulo) REFERENCES articulos(id) ON DELETE CASCADE
+                                        amount INTEGER NOT NULL,
+                                        unit_price REAL NOT NULL,
+                                        id_invoice INTEGER NOT NULL,
+                                        id_article INTEGER NOT NULL,
+                                        FOREIGN KEY (id_invoice) REFERENCES invoices(id) ON DELETE CASCADE,
+                                        FOREIGN KEY (id_article) REFERENCES articles(id) ON DELETE CASCADE
                                     )
                                 """)
         
