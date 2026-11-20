@@ -2,7 +2,7 @@ import sqlite3
 from typing import Generator
 
 
-DB_NAME = "inventory.db"
+DB_NAME = "stock e inventory.db"
 
 def get_db_connection()-> Generator[sqlite3.Connection, None, None]:
 
@@ -131,5 +131,6 @@ def init_db() -> None:
                                     )
                                 """)
         
+        conn.commit()
 
         
