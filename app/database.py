@@ -1,13 +1,15 @@
+from pathlib import Path
 import sqlite3
 from typing import Generator
 
 
-DB_NAME = "stock e inventory.db"
+BASE_DIR = Path(__file__).resolve().parent
+DB_NAME = str(BASE_DIR / "stock_e_inventory.db")
 
-def get_db_connection()-> Generator[sqlite3.Connection, None, None]:
 
+def get_db_connection() -> Generator[sqlite3.Connection, None, None]:
     conn = sqlite3.connect(DB_NAME, check_same_thread=False)
-    conn.row_factory=sqlite3.Row
+    conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     try:
         yield conn
@@ -16,7 +18,6 @@ def get_db_connection()-> Generator[sqlite3.Connection, None, None]:
 
 
 def init_db() -> None:
-
     with sqlite3.connect(DB_NAME) as conn:
         conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
@@ -94,43 +95,45 @@ def init_db() -> None:
         """)
 
         cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS stock_movements (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        transaction_date TEXT NOT NULL,
-                        amount_moved INTEGER NOT NULL,
-                        movement_type TEXT NOT NULL,
-                        id_articles INTEGER NOT NULL,
-                        id_deposit INTEGER NOT NULL,
-                        FOREIGN KEY (id_articles) REFERENCES articles(id) ON DELETE CASCADE,
-                         FOREIGN KEY (id_deposit) REFERENCES deposit(id) ON DELETE CASCADE
-                    )
-                """)
-
-
-        cursor.execute("""
-                            CREATE TABLE IF NOT EXISTS invoices (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                date TEXT NOT NULL,
-                                total INTEGER NOT NULL,
-                                id_customer INTEGER NOT NULL,
-                                id_branch INTEGER NOT NULL,
-                                FOREIGN KEY (id_customer) REFERENCES customers(id) ON DELETE CASCADE,
-                                FOREIGN KEY (id_branch) REFERENCES branch(id_branch) ON DELETE CASCADE
-                            )
-                        """)
+            CREATE TABLE IF NOT EXISTS stock_movements (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                transaction_date TEXT NOT NULL,
+                amount_moved INTEGER NOT NULL,
+                movement_type TEXT NOT NULL,
+                id_articles INTEGER NOT NULL,
+                id_deposit INTEGER NOT NULL,
+                FOREIGN KEY (id_articles) REFERENCES articles(id) ON DELETE CASCADE,
+                FOREIGN KEY (id_deposit) REFERENCES deposit(id) ON DELETE CASCADE
+            )
+        """)
 
         cursor.execute("""
-                                    CREATE TABLE IF NOT EXISTS invoice_detail (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        amount INTEGER NOT NULL,
-                                        unit_price REAL NOT NULL,
-                                        id_invoice INTEGER NOT NULL,
-                                        id_article INTEGER NOT NULL,
-                                        FOREIGN KEY (id_invoice) REFERENCES invoices(id) ON DELETE CASCADE,
-                                        FOREIGN KEY (id_article) REFERENCES articles(id) ON DELETE CASCADE
-                                    )
-                                """)
-        
+            CREATE TABLE IF NOT EXISTS invoices (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL,
+                total REAL NOT NULL,
+                id_customer INTEGER NOT NULL,
+                id_branch INTEGER NOT NULL,
+                FOREIGN KEY (id_customer) REFERENCES customers(id) ON DELETE CASCADE,
+                FOREIGN KEY (id_branch) REFERENCES branch(id) ON DELETE CASCADE
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS invoice_detail (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                amount INTEGER NOT NULL,
+                unit_price REAL NOT NULL,
+                id_invoice INTEGER NOT NULL,
+                id_article INTEGER NOT NULL,
+                FOREIGN KEY (id_invoice) REFERENCES invoices(id) ON DELETE CASCADE,
+                FOREIGN KEY (id_article) REFERENCES articles(id) ON DELETE CASCADE
+            )
+        """)
+
         conn.commit()
 
-        
+
+if __name__ == "__main__":
+    init_db()
+    print(f"Base de datos creada/verificada en: {DB_NAME}")
