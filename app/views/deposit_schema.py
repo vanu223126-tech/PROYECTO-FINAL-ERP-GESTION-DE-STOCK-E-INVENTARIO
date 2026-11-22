@@ -11,6 +11,11 @@ class DepositCreate(DepositBase):
     pass
 
 
+class DepositUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=150)
+    id_branch: Optional[int] = None
+
+
 class DepositResponse(DepositBase):
     id: int
 

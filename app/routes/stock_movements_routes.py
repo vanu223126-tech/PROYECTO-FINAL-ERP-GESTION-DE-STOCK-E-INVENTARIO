@@ -2,7 +2,7 @@ import sqlite3
 from typing import List
 from fastapi import APIRouter, Depends, status
 
-from app.controllers.stock_movement_controller import StockMovementController
+from app.controllers.StockMovement_Controller import StockMovementController
 from app.database import get_db_connection
 from app.views import StockMovementCreate, StockMovementResponse
 

@@ -15,6 +15,14 @@ class StockMovementCreate(StockMovementBase):
     pass
 
 
+class StockMovementUpdate(BaseModel):
+    id_article: Optional[int] = Field(None, gt=0)
+    id_deposit: Optional[int] = None
+    movement_type: Optional[str] = Field(None, min_length=1, max_length=50)
+    quantity: Optional[int] = Field(None, gt=0)
+    reason: Optional[str] = Field(None, max_length=255)
+
+
 class StockMovementResponse(StockMovementBase):
     id: int
     movement_date: Optional[str | datetime] = None

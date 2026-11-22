@@ -24,6 +24,25 @@ class CustomerController:
         return CustomerResponse.model_validate(dict(row))
 
     @staticmethod
+    def search_customers(
+        db: sqlite3.Connection,
+        email: str | None = None,
+        name: str | None = None,
+    ) -> List[CustomerResponse]:
+        rows = CustomerModel.get_all(db)
+        results = []
+
+        for row in rows:
+            data = dict(row)
+            if email and email.strip().lower() not in str(data.get("email", "")).lower():
+                continue
+            if name and name.strip().lower() not in str(data.get("name", "")).lower():
+                continue
+            results.append(CustomerResponse.model_validate(data))
+
+        return results
+
+    @staticmethod
     def create_customer(db: sqlite3.Connection, customer: CustomerCreate) -> CustomerResponse:
         try:
             new_id = CustomerModel.create(

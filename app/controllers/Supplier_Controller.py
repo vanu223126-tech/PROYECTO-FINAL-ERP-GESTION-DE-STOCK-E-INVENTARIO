@@ -2,7 +2,7 @@ import sqlite3
 from typing import List
 from fastapi import HTTPException, status
 
-from app.models.supplier import SupplierModel
+from app.models.Supplier import SupplierModel
 from app.views import SupplierCreate, SupplierResponse, SupplierUpdate
 
 

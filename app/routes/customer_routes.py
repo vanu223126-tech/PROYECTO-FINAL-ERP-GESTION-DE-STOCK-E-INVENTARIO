@@ -6,12 +6,21 @@ from app.controllers.customer_controller import CustomerController
 from app.database import get_db_connection
 from app.views import CustomerCreate, CustomerResponse, CustomerUpdate
 
-router = APIRouter(prefix="/customers", tags=["Customers"])
+router = APIRouter(tags=["Customers"])
 
 
 @router.get("/", response_model=List[CustomerResponse])
 def get_customers(db: sqlite3.Connection = Depends(get_db_connection)):
     return CustomerController.list_customers(db)
+
+
+@router.get("/search", response_model=List[CustomerResponse])
+def search_customers(
+    email: str | None = None,
+    name: str | None = None,
+    db: sqlite3.Connection = Depends(get_db_connection),
+):
+    return CustomerController.search_customers(db, email=email, name=name)
 
 
 @router.get("/{customer_id}", response_model=CustomerResponse)

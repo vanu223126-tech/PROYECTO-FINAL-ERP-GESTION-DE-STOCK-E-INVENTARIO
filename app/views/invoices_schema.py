@@ -30,6 +30,12 @@ class InvoiceCreate(InvoiceBase):
     items: list[InvoiceDetailCreate] = Field(..., min_length=1)
 
 
+class InvoiceUpdate(BaseModel):
+    id_customer: Optional[int] = Field(None, gt=0)
+    id_branch: Optional[int] = None
+    items: Optional[list[InvoiceDetailCreate]] = None
+
+
 class InvoiceResponse(InvoiceBase):
     id: int
     total: float = Field(..., ge=0)

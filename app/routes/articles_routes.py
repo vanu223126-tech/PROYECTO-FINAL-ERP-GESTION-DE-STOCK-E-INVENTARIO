@@ -6,13 +6,20 @@ from app.controllers.articles_controller import ArticleController
 from app.database import get_db_connection
 from app.views import ArticleCreate, ArticleResponse, ArticleUpdate
 
-router = APIRouter(prefix="/articles", tags=["Articles"])
+router = APIRouter (tags=["Articles"])
 
 
 @router.get("/", response_model=List[ArticleResponse])
 def get_articles(db: sqlite3.Connection = Depends(get_db_connection)):
     return ArticleController.list_articles(db)
 
+@router.get("/search", response_model=List[ArticleResponse])
+def search_articles(
+    name: str | None = None,
+    description: str | None = None,
+    db: sqlite3.Connection = Depends(get_db_connection),
+):
+    return ArticleController.search_articles(db, name=name, description=description)
 
 @router.get("/{article_id}", response_model=ArticleResponse)
 def get_article(article_id: int, db: sqlite3.Connection = Depends(get_db_connection)):

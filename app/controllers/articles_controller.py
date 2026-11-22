@@ -46,6 +46,25 @@ class ArticleController:
         return ArticleResponse.model_validate(dict(row))
 
     @staticmethod
+    def search_articles(
+        db: sqlite3.Connection,
+        name: str | None = None,
+        description: str | None = None,
+    ) -> List[ArticleResponse]:
+        rows = ArticlesModel.get_all(db)
+        results = []
+
+        for row in rows:
+            data = dict(row)
+            if name and name.strip().lower() not in str(data.get("name", "")).lower():
+                continue
+            if description and description.strip().lower() not in str(data.get("description", "")).lower():
+                continue
+            results.append(ArticleResponse.model_validate(data))
+
+        return results
+
+    @staticmethod
     def update_article(
         db: sqlite3.Connection, article_id: int, article: ArticleUpdate
     ) -> ArticleResponse:
