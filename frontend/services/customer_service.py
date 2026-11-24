@@ -18,8 +18,9 @@ class CustomerService:
         except requests.RequestException:
             return []
 
+    
     @staticmethod
-    def search_by_email(email: str) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+    def search_by_email(email: str) -> Tuple[List[Dict[str, Any]], Optional[str]]:
         try:
             response = requests.get(
                 f"{CUSTOMER_API_URL}/search",
@@ -27,15 +28,26 @@ class CustomerService:
                 timeout=5,
             )
             if response.status_code == 200:
-                return response.json(), None
+                data = response.json()
+                if isinstance(data, list):
+                    customers = data
+                elif isinstance(data, dict) and data:
+                    customers = [data]
+                else:
+                    customers = []
+
+                if customers:
+                    return customers, None
+                return [], "Cliente no encontrado"
+
             try:
                 detail = response.json().get("detail", "Cliente no encontrado")
             except ValueError:
                 detail = "Cliente no encontrado"
-            return None, detail
+            return [], detail
         except requests.RequestException as e:
-            return None, str(e)
-
+            return [], str(e)
+        
     @staticmethod
     def create(customer_data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
         try:

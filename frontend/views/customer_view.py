@@ -41,7 +41,7 @@ class CustomerView(ctk.CTkFrame):
             command=self.refresh,
         ).pack(side="right")
 
-        # Panel izquierdo: búsqueda unívoca por email + listado
+        
         left_frame = ctk.CTkFrame(self, fg_color="transparent")
         left_frame.grid(row=1, column=0, sticky="nsew", padx=(10, 5), pady=10)
         left_frame.grid_rowconfigure(2, weight=1)
@@ -99,7 +99,7 @@ class CustomerView(ctk.CTkFrame):
         self.list_frame = ctk.CTkScrollableFrame(left_frame, fg_color="transparent")
         self.list_frame.grid(row=2, column=0, sticky="nsew")
 
-        # Panel derecho: formulario de alta / edición
+        
         form_frame = ctk.CTkFrame(self, fg_color=COLORS["bg_card"], corner_radius=10)
         form_frame.grid(row=1, column=1, sticky="nsew", padx=(5, 10), pady=10)
 
@@ -179,21 +179,29 @@ class CustomerView(ctk.CTkFrame):
             self.refresh()
             return
 
-        customer, err = CustomerService.search_by_email(email)
-        if customer:
-            self.selected_customer = customer
-            self.search_result_label.configure(
-                text=f"Encontrado: {customer.get('name')} ({customer.get('email')})",
-                text_color=COLORS["status_ok"],
-            )
-            self._render_customers([customer])
-        else:
+        customers, err = CustomerService.search_by_email(email)
+        if err or not customers:
             self.selected_customer = None
             self.search_result_label.configure(
                 text=err or "Cliente no encontrado.",
                 text_color=COLORS["status_err"],
             )
             self._render_customers([])
+            return
+
+        self.selected_customer = customers[0]
+        if len(customers) == 1:
+            customer = customers[0]
+            self.search_result_label.configure(
+                text=f"Encontrado: {customer.get('name')} ({customer.get('email')})",
+                text_color=COLORS["status_ok"],
+            )
+        else:
+            self.search_result_label.configure(
+                text=f"Se encontraron {len(customers)} clientes. Elegí uno de la lista.",
+                text_color=COLORS["status_ok"],
+            )
+        self._render_customers(customers)
 
     def _render_customers(self, customers: list):
         for widget in self.list_frame.winfo_children():

@@ -19,7 +19,6 @@ class InvoiceView(ctk.CTkFrame):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
-        # Cabecera
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=(10, 5))
 
@@ -41,7 +40,6 @@ class InvoiceView(ctk.CTkFrame):
             command=self.refresh,
         ).pack(side="right")
 
-        # Columna izquierda: Cliente + Búsqueda parcial de artículos
         left_col = ctk.CTkFrame(self, fg_color="transparent")
         left_col.grid(row=1, column=0, sticky="nsew", padx=(10, 5), pady=10)
         left_col.grid_rowconfigure(2, weight=1)
@@ -147,8 +145,11 @@ class InvoiceView(ctk.CTkFrame):
             command=self.clear_cart,
         ).pack(fill="x")
 
+        self.refresh()
+
     def refresh(self):
-        self.articles = ArticleService.get_all()
+        loaded = ArticleService.get_all()
+        self.articles = [a for a in loaded if isinstance(a, dict)] if isinstance(loaded, list) else []
         self.render_articles()
         self.render_cart()
 
@@ -162,19 +163,35 @@ class InvoiceView(ctk.CTkFrame):
             )
             return
 
-        customer, err = CustomerService.search_by_email(email)
-        if customer:
-            self.selected_customer = customer
-            self.customer_info_label.configure(
-                text=f"Cliente #{customer.get('id')}: {customer.get('name')} ({customer.get('email')})",
-                text_color=COLORS["status_ok"],
-            )
-        else:
+        customers, err = CustomerService.search_by_email(email)
+        if err or not customers:
             self.selected_customer = None
+            msg = str(err) if err else "Cliente no encontrado."
             self.customer_info_label.configure(
-                text=err or "Cliente no encontrado.",
+                text=msg,
                 text_color=COLORS["status_err"],
             )
+            return
+
+        exactos = [
+            c for c in customers
+            if isinstance(c, dict) and str(c.get("email", "")).lower() == email.lower()
+        ]
+        elegido = exactos[0] if len(exactos) == 1 else (customers[0] if len(customers) == 1 else None)
+
+        if elegido is None:
+            self.selected_customer = None
+            self.customer_info_label.configure(
+                text=f"Hay {len(customers)} clientes parecidos. Ingresá el email completo.",
+                text_color=COLORS["status_err"],
+            )
+            return
+
+        self.selected_customer = elegido
+        self.customer_info_label.configure(
+            text=f"Cliente #{elegido.get('id')}: {elegido.get('name')} ({elegido.get('email')})",
+            text_color=COLORS["status_ok"],
+        )
 
     def render_articles(self):
         for w in self.articles_scroll.winfo_children():
@@ -187,9 +204,14 @@ class InvoiceView(ctk.CTkFrame):
         ]
 
         if not matches:
+            empty_msg = (
+                "No hay artículos cargados. Pulsa Refrescar Catálogo."
+                if not self.articles
+                else "No se encontraron artículos con ese nombre."
+            )
             ctk.CTkLabel(
                 self.articles_scroll,
-                text="No se encontraron artículos con ese nombre.",
+                text=empty_msg,
                 text_color=COLORS["muted_text"],
             ).pack(pady=16)
             return
@@ -342,7 +364,7 @@ class InvoiceView(ctk.CTkFrame):
             self.clear_cart()
             self.refresh()
         else:
-            self._set_status(err or "No se pudo emitir la factura.", success=False)
+            self._set_status(str(err) if err else "No se pudo emitir la factura.", success=False)
 
     def _set_status(self, text: str, success: bool):
         color = COLORS["status_ok"] if success else COLORS["status_err"]

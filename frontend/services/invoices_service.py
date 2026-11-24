@@ -13,9 +13,15 @@ class InvoiceService:
         try:
             response = requests.get(f"{INVOICE_API_URL}/", timeout=5)
             if response.status_code == 200:
-                return response.json()
+                data = response.json()
+                if isinstance(data, list):
+                    return [item for item in data if isinstance(item, dict)]
+                if isinstance(data, dict):
+                    for key in ("items", "invoices", "data", "results"):
+                        if isinstance(data.get(key), list):
+                            return [item for item in data[key] if isinstance(item, dict)]
             return []
-        except requests.RequestException:
+        except (requests.RequestException, ValueError):
             return []
 
     @staticmethod
