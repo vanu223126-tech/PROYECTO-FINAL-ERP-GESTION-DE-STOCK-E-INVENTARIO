@@ -6,6 +6,6 @@ __pycache__/
 *.pyo
 *.pyd
 
-build/
-dist/
-GestionInventario.spec
+build/GestionInventario.egg-info/
+dist/gestioninventario-0.1.0-py3.11.egg-info/
+
