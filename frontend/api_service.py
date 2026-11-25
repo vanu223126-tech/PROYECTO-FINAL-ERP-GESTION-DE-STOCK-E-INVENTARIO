@@ -23,6 +23,24 @@ class ArticleApiService:
             return []
 
     @staticmethod
+    def search_by_name(name: str) -> List[Dict[str, Any]]:
+        try:
+            response = requests.get(
+                f"{API_BASE_URL}/articles/search",
+                params={"name": name},
+                timeout=5,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    return [item for item in data if isinstance(item, dict)]
+            return []
+        except (requests.RequestException, ValueError):
+            return []
+
+    
+
+    @staticmethod
     def create_article(data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
         try:
             response = requests.post(f"{API_BASE_URL}/articles/", json=data, timeout=5)

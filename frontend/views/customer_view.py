@@ -1,14 +1,16 @@
 import customtkinter as ctk
-
 from frontend.config import COLORS
 from frontend.services.customer_service import CustomerService
+from datetime import date
+
 
 
 class CustomerView(ctk.CTkFrame):
 
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
-        self.editing_customer_id = None
+        self.editing_customer_id = None 
+        self.editing_registration_date = None
         self.selected_customer = None
 
         self.grid_columnconfigure(0, weight=2)
@@ -268,12 +270,14 @@ class CustomerView(ctk.CTkFrame):
         self.editing_customer_id = customer.get("id")
         self.form_title.configure(text="Editar Cliente")
         self.form_err_label.configure(text="")
+        self.editing_registration_date = customer.get("registration_date")
 
         for entry, key in (
             (self.name_entry, "name"),
             (self.email_entry, "email"),
             (self.phone_entry, "phone"),
             (self.address_entry, "address"),
+            
         ):
             entry.delete(0, "end")
             entry.insert(0, str(customer.get(key) or ""))
@@ -282,6 +286,7 @@ class CustomerView(ctk.CTkFrame):
 
     def clear_form(self):
         self.editing_customer_id = None
+        self.editing_registration_date = None
         self.form_title.configure(text="Nuevo Cliente")
         self.form_err_label.configure(text="")
         for entry in (
@@ -299,8 +304,10 @@ class CustomerView(ctk.CTkFrame):
         phone = self.phone_entry.get().strip()
         address = self.address_entry.get().strip()
 
-        if not name or not email:
-            self.form_err_label.configure(text="Nombre y email son obligatorios.")
+        if not name or not email or not phone or not address:
+            self.form_err_label.configure(
+                text="Nombre, email, teléfono y dirección son obligatorios."
+            )
             return
 
         payload = {
@@ -308,6 +315,7 @@ class CustomerView(ctk.CTkFrame):
             "email": email,
             "phone": phone,
             "address": address,
+            "registration_date": self.editing_registration_date or date.today().isoformat(),
         }
 
         if self.editing_customer_id is None:

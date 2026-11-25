@@ -1,6 +1,5 @@
 from datetime import date
 import customtkinter as ctk
-
 from frontend.config import COLORS
 from frontend.services.articles_service import ArticleService
 from frontend.services.customer_service import CustomerService
@@ -197,11 +196,9 @@ class InvoiceView(ctk.CTkFrame):
         for w in self.articles_scroll.winfo_children():
             w.destroy()
 
-        needle = self.article_query_entry.get().strip().lower()
-        matches = [
-            a for a in self.articles
-            if not needle or needle in str(a.get("name", "")).lower()
-        ]
+        needle = self.article_query_entry.get().strip()
+        matches = ArticleService.search_by_name(needle) if needle else self.articles
+
 
         if not matches:
             empty_msg = (

@@ -51,18 +51,34 @@ class ArticleController:
         name: str | None = None,
         description: str | None = None,
     ) -> List[ArticleResponse]:
-        rows = ArticlesModel.get_all(db)
+        if name and name.strip():
+            rows = ArticlesModel.search_by_name(db, name)
+        else:
+            rows = ArticlesModel.get_all(db)
         results = []
-
         for row in rows:
             data = dict(row)
-            if name and name.strip().lower() not in str(data.get("name", "")).lower():
-                continue
             if description and description.strip().lower() not in str(data.get("description", "")).lower():
                 continue
             results.append(ArticleResponse.model_validate(data))
-
         return results
+
+    
+
+    @staticmethod
+    def search_by_name(conn: sqlite3.Connection, name: str) -> List[sqlite3.Row]:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, name, description, unit_price, stock, sale_price, id_Category, id_Supplier
+            FROM articles
+            WHERE LOWER(name) LIKE LOWER(?)
+            ORDER BY name ASC
+            """,
+            (f"%{name.strip()}%",),
+        )
+        return cursor.fetchall()
+
 
     @staticmethod
     def update_article(

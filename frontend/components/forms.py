@@ -83,7 +83,6 @@ class ArticleForm(ctk.CTkFrame):
 
         cat_raw = self.category_id_entry.get().strip()
         sup_raw = self.supplier_id_entry.get().strip()
-
         id_category = None
         id_supplier = None
         if cat_raw:

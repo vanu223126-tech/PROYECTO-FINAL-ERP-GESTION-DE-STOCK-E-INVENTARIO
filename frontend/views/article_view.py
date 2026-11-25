@@ -94,15 +94,13 @@ class ArticleView(ctk.CTkFrame):
         self.apply_filter()
 
     def apply_filter(self):
-        query = self.search_entry.get().strip().lower()
+        query = self.search_entry.get().strip()
         if query:
-            filtered = [
-                art for art in self._all_articles
-                if query in str(art.get("name", "")).lower()
-            ]
+            filtered = ArticleService.search_by_name(query)
         else:
             filtered = self._all_articles
         self._render_cards(filtered)
+
 
     def _render_cards(self, articles: list):
         for widget in self.scroll_frame.winfo_children():

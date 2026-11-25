@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 class InvoiceDetailBase(BaseModel):
     id_article: int = Field(..., gt=0)
-    quantity: int = Field(..., gt=0)
+    amount: int = Field(..., gt=0)
     unit_price: float = Field(..., ge=0)
 
 
@@ -27,7 +27,9 @@ class InvoiceBase(BaseModel):
 
 
 class InvoiceCreate(InvoiceBase):
+    date: str = Field(..., min_length=10, max_length=10)
     items: list[InvoiceDetailCreate] = Field(..., min_length=1)
+
 
 
 class InvoiceUpdate(BaseModel):
@@ -39,8 +41,9 @@ class InvoiceUpdate(BaseModel):
 class InvoiceResponse(InvoiceBase):
     id: int
     total: float = Field(..., ge=0)
-    invoice_date: Optional[str | datetime] = None
-    details: list[InvoiceDetailResponse] = Field(default_factory=list)
+    date: Optional[str | datetime] = None
+    items: list[InvoiceDetailResponse] = Field(default_factory=list)
+
 
     class Config:
         from_attributes = True

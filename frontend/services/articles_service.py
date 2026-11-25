@@ -12,7 +12,11 @@ class ArticleService:
     @staticmethod
     def create(article_data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
         return ArticleApiService.create_article(article_data)
+    @staticmethod
+    def search_by_name(name: str) -> List[Dict[str, Any]]:
+        return ArticleApiService.search_by_name(name)
 
+    
     @staticmethod
     def update(article_id: int, article_data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
         return ArticleApiService.update_article(article_id, article_data)
