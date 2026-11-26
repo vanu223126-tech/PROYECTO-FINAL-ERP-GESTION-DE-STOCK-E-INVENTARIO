@@ -9,4 +9,6 @@ __pycache__/
 build/
 dist/
 *.spec
+GestionINventario.spec
+
 
