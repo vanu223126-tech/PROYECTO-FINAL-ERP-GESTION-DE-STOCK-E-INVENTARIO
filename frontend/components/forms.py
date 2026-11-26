@@ -83,20 +83,20 @@ class ArticleForm(ctk.CTkFrame):
 
         cat_raw = self.category_id_entry.get().strip()
         sup_raw = self.supplier_id_entry.get().strip()
-        id_category = None
-        id_supplier = None
-        if cat_raw:
-            try:
-                id_category = int(cat_raw)
-            except ValueError:
-                self.feedback_label.configure(text="ID Categoría debe ser entero.")
-                return
-        if sup_raw:
-            try:
-                id_supplier = int(sup_raw)
-            except ValueError:
-                self.feedback_label.configure(text="ID Proveedor debe ser entero.")
-                return
+        if not cat_raw or not sup_raw:
+            self.feedback_label.configure(
+                text="Categoría y proveedor son obligatorios."
+            )
+            return
+
+        try:
+            id_category = int(cat_raw)
+            id_supplier = int(sup_raw)
+        except ValueError:
+            self.feedback_label.configure(
+                text="Los IDs de categoría y proveedor deben ser enteros."
+            )
+            return
 
         payload = {
             "name": name,

@@ -65,21 +65,7 @@ class ArticleController:
 
     
 
-    @staticmethod
-    def search_by_name(conn: sqlite3.Connection, name: str) -> List[sqlite3.Row]:
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            SELECT id, name, description, unit_price, stock, sale_price, id_Category, id_Supplier
-            FROM articles
-            WHERE LOWER(name) LIKE LOWER(?)
-            ORDER BY name ASC
-            """,
-            (f"%{name.strip()}%",),
-        )
-        return cursor.fetchall()
-
-
+    
     @staticmethod
     def update_article(
         db: sqlite3.Connection, article_id: int, article: ArticleUpdate

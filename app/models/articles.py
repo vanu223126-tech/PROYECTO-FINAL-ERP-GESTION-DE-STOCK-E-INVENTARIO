@@ -40,6 +40,23 @@ class ArticlesModel:
         conn.commit()
         return cursor.lastrowid
 
+
+    @staticmethod
+    def search_by_name(conn: sqlite3.Connection, name: str) -> List[sqlite3.Row]:
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT id, name, description, unit_price, stock, sale_price, id_Category, id_Supplier
+        FROM articles
+        WHERE LOWER(name) LIKE LOWER(?)
+        ORDER BY name ASC
+        """,
+        (f"%{name.strip()}%",),
+    )
+    return cursor.fetchall()
+    search_articles del controller se deja como está: ya decide entre search_by_name y get_all.
+    
+
     @staticmethod
     def update(
         conn: sqlite3.Connection,
