@@ -171,14 +171,20 @@ class CustomerView(ctk.CTkFrame):
         )
 
     def refresh(self):
-        customers = CustomerService.get_all()
-        self.search_result_label.configure(text=f"Total de clientes: {len(customers)}")
-        self._render_customers(customers)
+        result = CustomerService.get_all()
+        if isinstance(result, tuple):
+            customers, _err = result
+        else:
+            customers = result
+        self._all_customers = [c for c in customers if isinstance(c, dict)] if isinstance(customers, list) else []
+        self.apply_filter()
 
     def search_customer(self):
         email = self.email_search_entry.get().strip()
         if not email:
-            self.refresh()
+            self._all_customers = getattr(self, "_all_customers", [])
+            self._render_customers([])
+            self.search_result_label.configure(text="Ingresa un email para buscar.")
             return
 
         customers, err = CustomerService.search_by_email(email)

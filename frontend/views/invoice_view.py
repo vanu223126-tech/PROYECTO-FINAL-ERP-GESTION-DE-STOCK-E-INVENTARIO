@@ -36,7 +36,7 @@ class InvoiceView(ctk.CTkFrame):
             width=125,
             fg_color=COLORS["primary"],
             hover_color=COLORS["primary_hover"],
-            command=self.refresh,
+            command=lambda: self.refresh(show_all=True),
         ).pack(side="right")
 
         left_col = ctk.CTkFrame(self, fg_color="transparent")
@@ -95,7 +95,6 @@ class InvoiceView(ctk.CTkFrame):
         self.articles_scroll = ctk.CTkScrollableFrame(left_col, fg_color="transparent")
         self.articles_scroll.grid(row=2, column=0, sticky="nsew")
 
-        
         right_col = ctk.CTkFrame(self, fg_color=COLORS["bg_card"], corner_radius=8)
         right_col.grid(row=1, column=1, sticky="nsew", padx=(5, 10), pady=10)
         right_col.grid_rowconfigure(2, weight=1)
@@ -146,11 +145,23 @@ class InvoiceView(ctk.CTkFrame):
 
         self.refresh()
 
-    def refresh(self):
+    def refresh(self, show_all: bool = False):
         loaded = ArticleService.get_all()
         self.articles = [a for a in loaded if isinstance(a, dict)] if isinstance(loaded, list) else []
-        self.render_articles()
+        if show_all or self.article_query_entry.get().strip():
+            self.render_articles()
+        else:
+            self._render_empty_articles("Escribe un nombre para buscar o pulsa Refrescar Catálogo.")
         self.render_cart()
+
+    def _render_empty_articles(self, message: str):
+        for w in self.articles_scroll.winfo_children():
+            w.destroy()
+        ctk.CTkLabel(
+            self.articles_scroll,
+            text=message,
+            text_color=COLORS["muted_text"],
+        ).pack(pady=16)
 
     def find_customer(self):
         email = self.cust_email_entry.get().strip()
@@ -196,9 +207,11 @@ class InvoiceView(ctk.CTkFrame):
         for w in self.articles_scroll.winfo_children():
             w.destroy()
 
-        needle = self.article_query_entry.get().strip()
-        matches = ArticleService.search_by_name(needle) if needle else self.articles
-
+        needle = self.article_query_entry.get().strip().lower()
+        matches = [
+            a for a in self.articles
+            if not needle or needle in str(a.get("name", "")).lower()
+        ]
 
         if not matches:
             empty_msg = (
@@ -206,11 +219,7 @@ class InvoiceView(ctk.CTkFrame):
                 if not self.articles
                 else "No se encontraron artículos con ese nombre."
             )
-            ctk.CTkLabel(
-                self.articles_scroll,
-                text=empty_msg,
-                text_color=COLORS["muted_text"],
-            ).pack(pady=16)
+            self._render_empty_articles(empty_msg)
             return
 
         for art in matches:

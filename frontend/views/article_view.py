@@ -98,7 +98,7 @@ class ArticleView(ctk.CTkFrame):
         if query:
             filtered = ArticleService.search_by_name(query)
         else:
-            filtered = self._all_articles
+            filtered = []
         self._render_cards(filtered)
 
 
