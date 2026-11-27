@@ -95,7 +95,7 @@ class InvoiceView(ctk.CTkFrame):
         self.articles_scroll = ctk.CTkScrollableFrame(left_col, fg_color="transparent")
         self.articles_scroll.grid(row=2, column=0, sticky="nsew")
 
-        # Columna derecha: Detalle de factura / Carrito
+        
         right_col = ctk.CTkFrame(self, fg_color=COLORS["bg_card"], corner_radius=8)
         right_col.grid(row=1, column=1, sticky="nsew", padx=(5, 10), pady=10)
         right_col.grid_rowconfigure(2, weight=1)
